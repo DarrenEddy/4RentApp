@@ -19,7 +19,7 @@ class PropertyRepository(private val context : Context) {
     //get an instance of firestore database
     private val db = Firebase.firestore
 
-    private val COLLECTION_EXPENSES = "Properties"
+    private val COLLECTION_PROPERTY = "Properties"
     private val COLLECTION_USERS = "Users"
 
     private val FIELD_PROPERTY_ADDRESS = "address"
@@ -41,6 +41,100 @@ class PropertyRepository(private val context : Context) {
         }
     }
 
+    fun retrieveAllProperties(){
+        if (loggedInUserEmail.isNotEmpty()) {
+            try{
+                db.collection(COLLECTION_PROPERTY)
+                    .addSnapshotListener(EventListener{ result, error ->
+                        if (error != null){
+                            Log.e(TAG,
+                                "retrieveAllProperties: Listening to Expenses collection failed due to error : $error", )
+                            return@EventListener
+                        }
+
+                        if (result != null){
+                            Log.d(TAG, "retrieveAllPropertis: Number of documents retrieved : ${result.size()}")
+
+                            val tempList : MutableList<Property> = ArrayList<Property>()
+
+                            for (docChanges in result.documentChanges){
+
+                                val currentDocument : Property = docChanges.document.toObject(Property::class.java)
+                                Log.d(TAG, "retrieveAllProperties: currentDocument : $currentDocument")
+
+                                when(docChanges.type){
+                                    DocumentChange.Type.ADDED -> {
+                                        //do necessary changes to your local list of objects
+                                        tempList.add(currentDocument)
+                                    }
+                                    DocumentChange.Type.MODIFIED -> {
+
+                                    }
+                                    DocumentChange.Type.REMOVED -> {
+
+                                    }
+                                }
+                            }//for
+                            Log.d(TAG, "retrieveAllProperties: tempList : $tempList")
+                            //replace the value in allExpenses
+
+                            allProperties.postValue(tempList)
+
+                        }else{
+                            Log.d(TAG, "retrieveAllProperties: No data in the result after retrieving")
+                        }
+                    })
+
+
+            }
+            catch (ex : java.lang.Exception){
+                Log.e(TAG, "retrieveAllExpenses: Unable to retrieve all expenses : $ex", )
+            }
+        }else{
+            Log.e(TAG, "retrieveAllExpenses: Cannot retrieve expenses without user's email address. You must sign in first.", )
+        }
+    }
+    fun getPropertiesByType(type:String)
+    {
+        if (loggedInUserEmail.isNotEmpty()) {
+            try{
+                db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_TYPE,type)
+                    .addSnapshotListener(EventListener { result, error ->
+                        //check for result or errors and update UI accordingly
+                        if (error != null){
+                            Log.e(TAG,
+                                "filterExpenses: Listening to Expenses collection failed due to error : $error", )
+                            return@EventListener
+                        }
+
+                        if (result != null){
+                            Log.d(TAG, "filterExpenses: Number of documents retrieved : ${result.size()}")
+
+                            val tempList : MutableList<Property> = ArrayList<Property>()
+
+                            for (docChanges in result.documentChanges){
+
+                                val currentDocument : Property = docChanges.document.toObject(Property::class.java)
+                                Log.d(TAG, "filterExpenses: currentDocument : $currentDocument")
+
+                                //do necessary changes to your local list of objects
+                                tempList.add(currentDocument)
+                            }//for
+                            Log.d(TAG, "filterExpenses: tempList : $tempList")
+                            //replace the value in allExpenses
+                            allProperties.postValue(tempList)
+
+                        }else{
+                            Log.d(TAG, "filterExpenses: No data in the result after retrieving")
+                        }
+                    })
+            }
+            catch (ex : java.lang.Exception){
+                Log.e(TAG, "filterExpenses: Unable to filter expenses : $ex", )
+            }
+        }
+    }
+
     fun addPropertyToDB(newProperty : Property){
         if (loggedInUserEmail.isNotEmpty()) {
             try {
@@ -52,7 +146,7 @@ class PropertyRepository(private val context : Context) {
                 data[FIELD_PROPERTY_OWNER] = newProperty.owner
                 data[FIELD_PROPERTY_AVAILABLE] = newProperty.available
 
-            db.collection(COLLECTION_EXPENSES)
+            db.collection(COLLECTION_PROPERTY)
                 .add(data)
                 .addOnSuccessListener { docRef ->
                     Log.d(TAG, "addPropertyToDB: Document successfully added with ID : ${docRef.id}")

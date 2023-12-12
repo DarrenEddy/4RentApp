@@ -7,12 +7,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.de.rentalfinal.databinding.ActivityMainBinding
+import com.de.rentalfinal.models.Property
+import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.UserRepository
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -32,7 +35,7 @@ val tempAddresses : List<String> = listOf(
     "2334 Bloor Street West"
 )
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
     private var viewList = true
     private var currentUserType = ""
@@ -43,7 +46,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var prefs: SharedPreferences
     private lateinit var userRepository: UserRepository
     private lateinit var firebaseAuth: FirebaseAuth
-
+    private lateinit var propertyRepository:PropertyRepository
+    private lateinit var propertyArrayList: ArrayList<Property>
+    private  lateinit var  propertyAdapter:PropertyAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +56,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         this.binding = ActivityMainBinding.inflate(layoutInflater)
         this.prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
         this.userRepository = UserRepository(applicationContext)
+        this.propertyRepository = PropertyRepository(applicationContext)
         this.firebaseAuth = FirebaseAuth.getInstance()
 
 
@@ -65,10 +71,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         //spinner Adapter
         val spinnerAdapter = ArrayAdapter<String>(this,R.layout.spinner_row,types)
         binding.spinnerFilterProperties.adapter = spinnerAdapter
+        binding.spinnerFilterProperties.onItemSelectedListener = this
 
         //rv adapter
-        val adapter:PropertyAdapter = PropertyAdapter(tempAddresses) { pos -> rowClicked(pos) }
-        this.binding.rvProperties.adapter=adapter
+        propertyArrayList = ArrayList()
+        propertyAdapter = PropertyAdapter(propertyArrayList) { pos -> rowClicked(pos) }
+        this.binding.rvProperties.adapter=propertyAdapter
         this.binding.rvProperties.layoutManager = LinearLayoutManager(this)
         binding.rvProperties.addItemDecoration(
             DividerItemDecoration(
@@ -99,8 +107,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 viewList = true
             }
         }
+   
 
         }
+
 
     override fun onMapReady(p0: GoogleMap) {
         mMap = p0
@@ -128,6 +138,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         {
             userRepository.getTypeByEmail(prefs.getString("USER_EMAIL","").toString(),this.binding.menuToolbar)
         }
+
+        propertyRepository.retrieveAllProperties()
+        propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
+            if (propertyList != null) {
+                propertyArrayList.clear()
+                propertyArrayList.addAll(propertyList)
+                propertyAdapter.notifyDataSetChanged()
+            }
+        } )
     }
 
 
@@ -181,6 +200,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+        if (p2 == 0)
+        {onResume()}
+        else
+        {
+            propertyRepository.getPropertiesByType(type = types[p2])
+            propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
+                if (propertyList != null) {
+                    propertyArrayList.clear()
+                    propertyArrayList.addAll(propertyList)
+                    propertyAdapter.notifyDataSetChanged()
+                }
+            } )
+        }
+
+
+    }
+
+    override fun onNothingSelected(p0: AdapterView<*>?) {
+        TODO("Not yet implemented")
     }
 
 

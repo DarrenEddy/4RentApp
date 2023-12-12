@@ -6,9 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.de.rentalfinal.models.Property
 
 
-class PropertyAdapter(var items:List<String>,private val rowClickHandler: (Int) -> Unit) : RecyclerView.Adapter<PropertyAdapter.PropertyViewHolder>(){
+class PropertyAdapter(var items:ArrayList<Property>,private val rowClickHandler: (Int) -> Unit) : RecyclerView.Adapter<PropertyAdapter.PropertyViewHolder>(){
     inner class PropertyViewHolder(itemView: View):RecyclerView.ViewHolder(itemView)
     {
         init {
@@ -32,10 +33,14 @@ class PropertyAdapter(var items:List<String>,private val rowClickHandler: (Int) 
         val property = items.get(position)
 
         val tvAddress = holder.itemView.findViewById<TextView>(R.id.tvAddress)
-        val tvCity = holder.itemView.findViewById<TextView>(R.id.tvCity)
         val tvType = holder.itemView.findViewById<TextView>(R.id.tvType)
         val tvAvailable = holder.itemView.findViewById<TextView>(R.id.tvAvailability)
-        tvAddress.setText(property)
+        tvAddress.setText(property.address)
+        tvType.setText(property.type)
+        if (!property.available)
+        {
+            tvAvailable.setText("Unavailable")
+        }
 
 
     }

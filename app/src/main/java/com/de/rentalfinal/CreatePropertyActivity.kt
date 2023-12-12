@@ -66,7 +66,7 @@ class CreatePropertyActivity : AppCompatActivity(),OnClickListener {
                     {
                         val address = this.binding.editAddress.text.toString()
                         val description = this.binding.editDescription.text.toString()
-                        val type = types[this.binding.spinnerType.selectedItemPosition]
+                        val type = types.subList(1,types.size)[this.binding.spinnerType.selectedItemPosition]
                         // available
                         //email
 
