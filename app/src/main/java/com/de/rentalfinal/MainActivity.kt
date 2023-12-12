@@ -1,20 +1,19 @@
 package com.de.rentalfinal
 
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Adapter
 import android.widget.ArrayAdapter
-import android.widget.SpinnerAdapter
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 
 import com.de.rentalfinal.databinding.ActivityMainBinding
+import com.de.rentalfinal.repositories.UserRepository
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -22,7 +21,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 
 val types : List<String> = listOf("All","Condo","House","Apartment")
 
@@ -36,20 +35,26 @@ val tempAddresses : List<String> = listOf(
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private var viewList = true
+    private var currentUserType = ""
 
     private lateinit var mMap: GoogleMap
     private lateinit var currentLocation : LatLng
     private lateinit var locationCallback: LocationCallback
+    private lateinit var prefs: SharedPreferences
+    private lateinit var userRepository: UserRepository
+    private lateinit var firebaseAuth: FirebaseAuth
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //lateinits
         this.binding = ActivityMainBinding.inflate(layoutInflater)
+        this.prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
+        this.userRepository = UserRepository(applicationContext)
+        this.firebaseAuth = FirebaseAuth.getInstance()
 
-        //tool bar
-        this.binding.menuToolbar.title = "4Rent"
-        setSupportActionBar(this.binding.menuToolbar)
+
+
 
         // map init
         val mapFragment = supportFragmentManager
@@ -72,6 +77,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             )
         )
 
+        //ToolBar
+        this.binding.menuToolbar.title = "4Rent"
+        setSupportActionBar(this.binding.menuToolbar)
+
 
         setContentView(binding.root)
 
@@ -90,21 +99,68 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 viewList = true
             }
         }
+
+        }
+
+    override fun onMapReady(p0: GoogleMap) {
+        mMap = p0
+
+        // Add a marker in Sydney and move the camera
+//        val sydney = LatLng(-34.0, 151.0)
+//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(this.currentLocation, 20.0f))
+        mMap.addMarker(MarkerOptions().position(this.currentLocation).title("You're Here"))
+
+        mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        mMap.isTrafficEnabled = true
+
+        val uiSettings = p0.uiSettings
+        uiSettings.isZoomControlsEnabled = true
+        uiSettings.isCompassEnabled = true
+
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (prefs.contains("USER_EMAIL"))
+        {
+            userRepository.getTypeByEmail(prefs.getString("USER_EMAIL","").toString(),this.binding.menuToolbar)
+        }
+    }
+
+
+    private fun updateMenu()
+    {
+        val type = prefs.getString("USER_TYPE","").toString()
+        if (type == "Landlord")
+        {
+            this.binding.menuToolbar.menu.clear()
+            this.binding.menuToolbar.inflateMenu(R.menu.menu_options_landlord)
+        }
+        else
+        {
+            this.binding.menuToolbar.menu.clear()
+            this.binding.menuToolbar.inflateMenu(R.menu.menu_options)
+        }
+
+    }
     private fun rowClicked(pos: Int) {
 
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_options, menu)
+        updateMenu()
         return super.onCreateOptionsMenu(menu)
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         return when(item.itemId){
+
             R.id.menu_item_add_property-> {
-                val toast = Toast.makeText(this,"CREATE A NEW ACTIVITY",Toast.LENGTH_SHORT)
-                toast.show()
+                val intent = Intent(this,CreatePropertyActivity::class.java)
+                startActivity(intent)
                 return true
             }
             R.id.menu_item_login ->
@@ -113,30 +169,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(intent)
                     return true
                 }
+            R.id.menu_item_logout ->
+                {
+                    prefs.edit().remove("USER_EMAIL").commit()
+                    prefs.edit().remove("USER_TYPE").commit()
+                    firebaseAuth.signOut()
+                    updateMenu()
+                    return true
+                }
+
 
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    override fun onMapReady(p0: GoogleMap) {
 
-            mMap = p0
-
-            // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(this.currentLocation, 20.0f))
-            mMap.addMarker(MarkerOptions().position(this.currentLocation).title("You're Here"))
-
-            mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
-            mMap.isTrafficEnabled = true
-
-            val uiSettings = p0.uiSettings
-            uiSettings.isZoomControlsEnabled = true
-            uiSettings.isCompassEnabled = true
-
-
-    }
 }

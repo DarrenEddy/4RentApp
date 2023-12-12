@@ -4,11 +4,7 @@
 
     <item
         android:id="@+id/menu_item_login"
-        android:title="Login"
+        android:title="Log In"
     />
-    <item
-        android:id="@+id/menu_item_add_property"
-        android:title="Add A Property"
-        />
 
 </menu>

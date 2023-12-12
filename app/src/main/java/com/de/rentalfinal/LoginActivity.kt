@@ -8,17 +8,20 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
 import com.de.rentalfinal.databinding.ActivityLoginBinding
+import com.de.rentalfinal.repositories.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity(), OnClickListener {
     private lateinit var binding:ActivityLoginBinding
     private lateinit var prefs: SharedPreferences
     private lateinit var firebaseAuth : FirebaseAuth
+    private lateinit var userRepository: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.binding = ActivityLoginBinding.inflate(layoutInflater)
         firebaseAuth = FirebaseAuth.getInstance()
+        this.userRepository = UserRepository(applicationContext)
         this.prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
         this.binding.btnSignIn.setOnClickListener(this)
         this.binding.btnSignUp.setOnClickListener(this)

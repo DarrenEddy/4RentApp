@@ -1,7 +1,10 @@
 package com.de.rentalfinal.repositories
 
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.util.Log
+import android.widget.Toolbar
+import com.de.rentalfinal.R
 import com.de.rentalfinal.models.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -16,6 +19,8 @@ class UserRepository(private val context: Context) {
     private val FIELD_PASSWORD = "password"
     private val FIELD_NAME = "name"
     private val FIELD_TYPE = "type"
+
+    private val prefs = context.getSharedPreferences("com.de.rentalfinal", MODE_PRIVATE)
 
 
     fun addUserToDB(newUser : User){
@@ -39,6 +44,28 @@ class UserRepository(private val context: Context) {
             
         }catch (ex : Exception){
             Log.e(TAG, "addUserToDB: Couldn't add user document $ex", )
+        }
+    }
+
+    fun getTypeByEmail(email: String, menu: androidx.appcompat.widget.Toolbar)
+    {
+        db.collection(COLLECTION_USERS).document(email).get().addOnSuccessListener {
+            val type = it.get(FIELD_TYPE).toString()
+            prefs.edit().putString("USER_TYPE", type).apply()
+            adjustMenu(type,menu)
+            Log.d(TAG,"UserRepository: got $email type of $type")
+
+        }.addOnFailureListener{
+            Log.e(TAG,"UserRepository: Error getting Type By email $it")
+        }
+    }
+
+    private fun adjustMenu(type:String, menu: androidx.appcompat.widget.Toolbar)
+    {
+        if (type == "Landlord")
+        {
+            menu.menu.clear()
+            menu.inflateMenu(R.menu.menu_options_landlord)
         }
     }
 

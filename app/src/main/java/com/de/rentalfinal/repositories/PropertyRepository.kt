@@ -19,7 +19,7 @@ class PropertyRepository(private val context : Context) {
     //get an instance of firestore database
     private val db = Firebase.firestore
 
-    private val COLLECTION_EXPENSES = "Expenses"
+    private val COLLECTION_EXPENSES = "Properties"
     private val COLLECTION_USERS = "Users"
 
     private val FIELD_PROPERTY_ADDRESS = "address"
