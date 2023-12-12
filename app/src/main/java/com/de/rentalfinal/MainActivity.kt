@@ -139,14 +139,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
             userRepository.getTypeByEmail(prefs.getString("USER_EMAIL","").toString(),this.binding.menuToolbar)
         }
 
-        propertyRepository.retrieveAllProperties()
-        propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
-            if (propertyList != null) {
-                propertyArrayList.clear()
-                propertyArrayList.addAll(propertyList)
-                propertyAdapter.notifyDataSetChanged()
-            }
-        } )
+
     }
 
 
@@ -203,25 +196,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+//        Toast.makeText(this, "ITEM SELECTED", Toast.LENGTH_SHORT).show()
         if (p2 == 0)
-        {onResume()}
+        {
+            propertyRepository.retrieveAllProperties()
+        }
         else
         {
             propertyRepository.getPropertiesByType(type = types[p2])
-            propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
-                if (propertyList != null) {
-                    propertyArrayList.clear()
-                    propertyArrayList.addAll(propertyList)
-                    propertyAdapter.notifyDataSetChanged()
-                }
-            } )
         }
+        propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
+            if (propertyList != null) {
+                propertyArrayList.clear()
+                propertyArrayList.addAll(propertyList)
+                propertyAdapter.notifyDataSetChanged()
+            }
+        } )
 
 
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("Not yet implemented")
+        Toast.makeText(this, "ERROR NOTHING SELECTED", Toast.LENGTH_SHORT).show()
     }
 
 

@@ -42,13 +42,12 @@ class PropertyRepository(private val context : Context) {
     }
 
     fun retrieveAllProperties(){
-        if (loggedInUserEmail.isNotEmpty()) {
             try{
                 db.collection(COLLECTION_PROPERTY)
                     .addSnapshotListener(EventListener{ result, error ->
                         if (error != null){
                             Log.e(TAG,
-                                "retrieveAllProperties: Listening to Expenses collection failed due to error : $error", )
+                                "retrieveAllProperties: Listening to Properties collection failed due to error : $error", )
                             return@EventListener
                         }
 
@@ -76,7 +75,7 @@ class PropertyRepository(private val context : Context) {
                                 }
                             }//for
                             Log.d(TAG, "retrieveAllProperties: tempList : $tempList")
-                            //replace the value in allExpenses
+                            //replace the value in allProperties
 
                             allProperties.postValue(tempList)
 
@@ -88,51 +87,49 @@ class PropertyRepository(private val context : Context) {
 
             }
             catch (ex : java.lang.Exception){
-                Log.e(TAG, "retrieveAllExpenses: Unable to retrieve all expenses : $ex", )
+                Log.e(TAG, "retrieveAllProperties: Unable to retrieve all Properties : $ex", )
             }
-        }else{
-            Log.e(TAG, "retrieveAllExpenses: Cannot retrieve expenses without user's email address. You must sign in first.", )
-        }
+
     }
     fun getPropertiesByType(type:String)
     {
-        if (loggedInUserEmail.isNotEmpty()) {
+
             try{
                 db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_TYPE,type)
                     .addSnapshotListener(EventListener { result, error ->
                         //check for result or errors and update UI accordingly
                         if (error != null){
                             Log.e(TAG,
-                                "filterExpenses: Listening to Expenses collection failed due to error : $error", )
+                                "filterProperties: Listening to Properties collection failed due to error : $error", )
                             return@EventListener
                         }
 
                         if (result != null){
-                            Log.d(TAG, "filterExpenses: Number of documents retrieved : ${result.size()}")
+                            Log.d(TAG, "filterProperties: Number of documents retrieved : ${result.size()}")
 
                             val tempList : MutableList<Property> = ArrayList<Property>()
 
                             for (docChanges in result.documentChanges){
 
                                 val currentDocument : Property = docChanges.document.toObject(Property::class.java)
-                                Log.d(TAG, "filterExpenses: currentDocument : $currentDocument")
+                                Log.d(TAG, "filterProperties: currentDocument : $currentDocument")
 
                                 //do necessary changes to your local list of objects
                                 tempList.add(currentDocument)
                             }//for
-                            Log.d(TAG, "filterExpenses: tempList : $tempList")
-                            //replace the value in allExpenses
+                            Log.d(TAG, "filterProperties: tempList : $tempList")
+                            //replace the value in allProperties
                             allProperties.postValue(tempList)
 
                         }else{
-                            Log.d(TAG, "filterExpenses: No data in the result after retrieving")
+                            Log.d(TAG, "filterProperties: No data in the result after retrieving")
                         }
                     })
             }
             catch (ex : java.lang.Exception){
-                Log.e(TAG, "filterExpenses: Unable to filter expenses : $ex", )
+                Log.e(TAG, "filterProperties: Unable to filter Properties : $ex", )
             }
-        }
+
     }
 
     fun addPropertyToDB(newProperty : Property){
@@ -159,11 +156,11 @@ class PropertyRepository(private val context : Context) {
             catch (ex : java.lang.Exception){
                 Log.d(
                     TAG,
-                    "addPropertyToDB: Couldn't perform insert on Expenses collection due to exception $ex"
+                    "addPropertyToDB: Couldn't perform insert on Properties collection due to exception $ex"
                 )
             }
         }else{
-            Log.e(TAG, "addPropertyToDB: Cannot create expense without user's email address. You must create the account first.", )
+            Log.e(TAG, "addPropertyToDB: Cannot create Property without user's email address. You must create the account first.", )
         }
     }
 
