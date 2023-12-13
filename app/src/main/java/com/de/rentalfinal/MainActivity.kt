@@ -18,6 +18,7 @@ import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.UserRepository
 import com.de.rentalfinal.tenant.ActivityViewProperty
+import com.de.rentalfinal.tenant.ShortListActivity
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -186,6 +187,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                     startActivity(intent)
                     return true
                 }
+            R.id.menu_item_shortList ->
+            {
+                val intent = Intent(this,ShortListActivity::class.java)
+                startActivity(intent)
+                return true
+            }
             R.id.menu_item_logout ->
                 {
                     prefs.edit().remove("USER_EMAIL").commit()

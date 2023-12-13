@@ -168,7 +168,7 @@ class PropertyRepository(private val context : Context) {
         }
     }
 
-    fun getPropertyById(propertyId: String, onSuccess: (Property) -> Unit, onFailure: (Exception) -> Unit) {
+    fun getPropertyById(propertyId: String, onSuccess: (Property) -> Unit) {
         try {
             db.collection(COLLECTION_PROPERTY)
                 .document(propertyId)
@@ -176,15 +176,13 @@ class PropertyRepository(private val context : Context) {
                 .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val property = document.toObject(Property::class.java)
-                    property?.let { onSuccess.invoke(it) }
-                } else {
-                    onFailure.invoke(Exception("Property not found"))
+                    if (property != null) {
+                        onSuccess(property)
+                    }
                 }
-            }.addOnFailureListener { exception ->
-                onFailure.invoke(exception)
             }
-        } catch (e: Exception) {
-            onFailure.invoke(e)
+        } catch (ex:java.lang.Exception) {
+            Log.d(TAG, "getPropertyById: Could not get property by id due to excepcion: $ex")
         }
     }
 
