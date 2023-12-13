@@ -17,6 +17,7 @@ import com.de.rentalfinal.databinding.ActivityMainBinding
 import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.UserRepository
+import com.de.rentalfinal.tenant.ActivityViewProperty
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -159,7 +160,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
 
     }
     private fun rowClicked(pos: Int) {
-
+        val selectedProperty = propertyArrayList[pos]
+        val propertyId = selectedProperty.id
+        val intent = Intent(this, ActivityViewProperty::class.java)
+        intent.putExtra("PROPERTY_ID", propertyId)
+        startActivity(intent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -25,6 +25,8 @@ class PropertyRepository(private val context : Context) {
     private val FIELD_PROPERTY_ADDRESS = "address"
     private val FIELD_PROPERTY_TYPE = "type"
     private val FIELD_PROPERTY_DESCRIPTION = "description";
+    private val FIELD_LAT = "lat"
+    private val FIELD_LNG = "lng"
     private val FIELD_PROPERTY_OWNER= "owner";
     private val FIELD_PROPERTY_AVAILABLE = "available";
 
@@ -140,6 +142,8 @@ class PropertyRepository(private val context : Context) {
                 data[FIELD_PROPERTY_ADDRESS] = newProperty.address;
                 data[FIELD_PROPERTY_TYPE] = newProperty.type
                 data[FIELD_PROPERTY_DESCRIPTION] = newProperty.description
+                data[FIELD_LAT] = newProperty.lat
+                data[FIELD_LNG] = newProperty.lng
                 data[FIELD_PROPERTY_OWNER] = newProperty.owner
                 data[FIELD_PROPERTY_AVAILABLE] = newProperty.available
 
@@ -161,6 +165,26 @@ class PropertyRepository(private val context : Context) {
             }
         }else{
             Log.e(TAG, "addPropertyToDB: Cannot create Property without user's email address. You must create the account first.", )
+        }
+    }
+
+    fun getPropertyById(propertyId: String, onSuccess: (Property) -> Unit, onFailure: (Exception) -> Unit) {
+        try {
+            db.collection(COLLECTION_PROPERTY)
+                .document(propertyId)
+                .get()
+                .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val property = document.toObject(Property::class.java)
+                    property?.let { onSuccess.invoke(it) }
+                } else {
+                    onFailure.invoke(Exception("Property not found"))
+                }
+            }.addOnFailureListener { exception ->
+                onFailure.invoke(exception)
+            }
+        } catch (e: Exception) {
+            onFailure.invoke(e)
         }
     }
 
