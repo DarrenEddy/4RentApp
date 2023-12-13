@@ -10,6 +10,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.firestore
+import java.util.UUID
 import kotlin.math.log
 
 //Controller
@@ -61,6 +62,7 @@ class PropertyRepository(private val context : Context) {
                             for (docChanges in result.documentChanges){
 
                                 val currentDocument : Property = docChanges.document.toObject(Property::class.java)
+                                currentDocument.id = docChanges.document.id
                                 Log.d(TAG, "retrieveAllProperties: currentDocument : $currentDocument")
 
                                 when(docChanges.type){
@@ -114,6 +116,7 @@ class PropertyRepository(private val context : Context) {
                             for (docChanges in result.documentChanges){
 
                                 val currentDocument : Property = docChanges.document.toObject(Property::class.java)
+                                currentDocument.id = docChanges.document.id
                                 Log.d(TAG, "filterProperties: currentDocument : $currentDocument")
 
                                 //do necessary changes to your local list of objects
@@ -148,9 +151,10 @@ class PropertyRepository(private val context : Context) {
                 data[FIELD_PROPERTY_AVAILABLE] = newProperty.available
 
             db.collection(COLLECTION_PROPERTY)
-                .add(data)
+                .document(UUID.randomUUID().toString())
+                .set(data)
                 .addOnSuccessListener { docRef ->
-                    Log.d(TAG, "addPropertyToDB: Document successfully added with ID : ${docRef.id}")
+                    Log.d(TAG, "addPropertyToDB: Document successfully added with ID : $docRef")
                 }
                 .addOnFailureListener { ex ->
                     Log.e(TAG, "addPropertyToDB: Exception ocurred while adding a document : $ex", )
@@ -176,6 +180,7 @@ class PropertyRepository(private val context : Context) {
                 .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val property = document.toObject(Property::class.java)
+                    property?.id = document.id
                     if (property != null) {
                         onSuccess(property)
                     }

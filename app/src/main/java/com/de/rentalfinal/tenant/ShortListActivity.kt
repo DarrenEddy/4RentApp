@@ -7,14 +7,10 @@ import android.util.Log
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.de.project.ShortListPropertyAdapter
-import com.de.rentalfinal.PropertyAdapter
-import com.de.rentalfinal.R
 import com.de.rentalfinal.databinding.ActivityShortListBinding
 import com.de.rentalfinal.models.Property
-import com.de.rentalfinal.models.Shortlist
 import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.ShortListRepository
-import com.google.android.material.snackbar.Snackbar
 
 class ShortListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityShortListBinding
@@ -82,7 +78,7 @@ class ShortListActivity : AppCompatActivity() {
     private fun deleteBtnClickHandler(pos:Int){
         val selectedId = properties.get(pos).id
 
-        shortListRepository.deleteFromShortList(currentUserId, "4c4sZNUCa2Ya1RytCmSP")
+        shortListRepository.deleteFromShortList(currentUserId, selectedId)
         getProperties()
 
     }

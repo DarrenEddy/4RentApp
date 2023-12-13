@@ -63,6 +63,7 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
 
                 if (currentUserId.isNotEmpty()){
                     val propertyId = intent.getStringExtra("PROPERTY_ID")
+                    Log.d("PropertyID", "$propertyId")
 
                     if (propertyId != null) {
                         shortListRepository.getListOfProperties(currentUserId) { properties ->

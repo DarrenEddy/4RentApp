@@ -4,7 +4,7 @@ import java.util.*
 
 data class Property
     (
-        var id:String = UUID.randomUUID().toString(),
+        var id:String = "",
         var address: String = "",
         var lat:Double = 0.0,
         var lng:Double = 0.0,
