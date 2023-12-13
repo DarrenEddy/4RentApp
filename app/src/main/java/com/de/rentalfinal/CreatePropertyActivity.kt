@@ -83,8 +83,8 @@ class CreatePropertyActivity : AppCompatActivity(),OnClickListener {
                                 binding.editAddress.setError("Search Results Empty")
 
                             } else {
-                                val foundLocation: Address = searchResults.get(0)
-                                val newProperty = Property(address = address, type = type, description = description, owner = email, available = available)
+                                val foundLocation: Address = searchResults[0]
+                                val newProperty = Property(address = address, lat = foundLocation.latitude, lng = foundLocation.longitude, type = type, description = description, owner = email, available = available)
                                 addProperty(newProperty)
                             }
                         } catch(ex:Exception) {
