@@ -2,25 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_margin="8dp"
-    tools:context=".CreatePropertyActivity">
+    tools:context=".EditPropertyActivity">
+
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_marginBottom="20dp"
-        android:text="Create Property"
+        android:text="Update Property"
         android:textSize="20sp"/>
 
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enter The Address"
+        android:text="Address"
         android:textSize="20sp"/>
     <EditText
         android:id="@+id/edit_address"
@@ -28,18 +28,51 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:hint="Address"/>
-    <Button
-        android:id="@+id/btn_use_current_location"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:layout_marginBottom="16dp"
-        android:text="Current Location"/>
+        android:orientation="horizontal"
+
+        android:layout_marginBottom="16dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lattitude"/>
+
+            <EditText
+                android:id="@+id/edit_lat"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Longitude"/>
+
+            <EditText
+                android:id="@+id/edit_lng"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select The Property Type"
+        android:text="Property Type"
         android:textSize="20sp"/>
     <Spinner
         android:id="@+id/spinner_type"
@@ -52,7 +85,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Property Description"
+        android:text="Description"
         android:textSize="20sp"/>
     <EditText
         android:id="@+id/edit_description"
@@ -90,14 +123,25 @@
             android:textSize="20sp"/>
 
     </LinearLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        />
 
     <Button
-        android:id="@+id/btn_create_property"
+        android:id="@+id/btn_remove_property"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:text="Add Property"/>
-
-
+        android:text="Remove"/>
+    <Button
+        android:id="@+id/btn_update_property"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:text="Update"
+        android:layout_marginBottom="16dp"
+        />
 
 </LinearLayout>

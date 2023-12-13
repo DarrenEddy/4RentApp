@@ -1,15 +1,20 @@
 package com.de.rentalfinal
 
+import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 
@@ -17,25 +22,22 @@ import com.de.rentalfinal.databinding.ActivityMainBinding
 import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.UserRepository
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 val types : List<String> = listOf("All","Condo","House","Apartment")
 
-val tempAddresses : List<String> = listOf(
-    "123 abc drive",
-    "4 main street",
-    "20 avennue road",
-    "2334 Bloor Street West"
-)
-
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItemSelectedListener {
+    private val TAG = this.javaClass.canonicalName
     private lateinit var binding: ActivityMainBinding
     private var viewList = true
     private var currentUserType = ""
@@ -49,6 +51,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     private lateinit var propertyRepository:PropertyRepository
     private lateinit var propertyArrayList: ArrayList<Property>
     private  lateinit var  propertyAdapter:PropertyAdapter
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val APP_PERMISSIONS_LIST = arrayOf(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION,
+        android.Manifest.permission.ACCESS_FINE_LOCATION
+    )
+
+    private val multiplePermissionsResultLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()) { resultsList ->
+
+        var allPermissionsGrantedTracker = true
+
+        for (item in resultsList.entries) {
+            if (item.key in APP_PERMISSIONS_LIST && item.value == false) {
+                allPermissionsGrantedTracker = false
+            }
+        }
+
+
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +82,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         this.userRepository = UserRepository(applicationContext)
         this.propertyRepository = PropertyRepository(applicationContext)
         this.firebaseAuth = FirebaseAuth.getInstance()
+        this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            &&
+            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            multiplePermissionsResultLauncher.launch(APP_PERMISSIONS_LIST)
+        }
 
 
         // map init
@@ -138,6 +169,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         {
             userRepository.getTypeByEmail(prefs.getString("USER_EMAIL","").toString(),this.binding.menuToolbar)
         }
+        propertyRepository.retrieveAllProperties()
+        propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
+            if (propertyList != null) {
+                propertyArrayList.clear()
+                propertyArrayList.addAll(propertyList)
+                propertyAdapter.notifyDataSetChanged()
+            }
+        } )
 
 
     }
@@ -189,6 +228,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                     updateMenu()
                     return true
                 }
+            R.id.menu_item_view_properties ->
+                {
+                    val intent = Intent(this,LandlordActivity::class.java)
+                    startActivity(intent)
+                    return true
+                }
 
 
             else -> super.onOptionsItemSelected(item)
@@ -219,6 +264,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     override fun onNothingSelected(p0: AdapterView<*>?) {
         Toast.makeText(this, "ERROR NOTHING SELECTED", Toast.LENGTH_SHORT).show()
     }
+
+
 
 
 }
