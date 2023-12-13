@@ -25,6 +25,8 @@ class PropertyRepository(private val context : Context) {
     private val FIELD_PROPERTY_ADDRESS = "address"
     private val FIELD_PROPERTY_TYPE = "type"
     private val FIELD_PROPERTY_DESCRIPTION = "description";
+    private val FIELD_LAT = "lat"
+    private val FIELD_LNG = "lng"
     private val FIELD_PROPERTY_OWNER= "owner";
     private val FIELD_PROPERTY_AVAILABLE = "available";
 
@@ -142,6 +144,8 @@ class PropertyRepository(private val context : Context) {
                 data[FIELD_PROPERTY_DESCRIPTION] = newProperty.description
                 data[FIELD_PROPERTY_OWNER] = newProperty.owner
                 data[FIELD_PROPERTY_AVAILABLE] = newProperty.available
+                data[FIELD_LAT] = newProperty.lat
+                data[FIELD_LNG] = newProperty.lng
 
             db.collection(COLLECTION_PROPERTY)
                 .add(data)
