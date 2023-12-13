@@ -29,7 +29,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -43,7 +46,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     private var currentUserType = ""
 
     private lateinit var mMap: GoogleMap
-    private lateinit var currentLocation : LatLng
     private lateinit var locationCallback: LocationCallback
     private lateinit var prefs: SharedPreferences
     private lateinit var userRepository: UserRepository
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     private lateinit var propertyArrayList: ArrayList<Property>
     private  lateinit var  propertyAdapter:PropertyAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val markers = mutableListOf<Marker>()
 
     private val APP_PERMISSIONS_LIST = arrayOf(
         android.Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -97,7 +100,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-        this.currentLocation = LatLng(43.74853, -79.26374)
 
         //spinner Adapter
         val spinnerAdapter = ArrayAdapter<String>(this,R.layout.spinner_row,types)
@@ -130,6 +132,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 // change to map view
                 this.binding.rvProperties.visibility = View.GONE
                 viewList = false
+
+                //update map with current propertiesList as markers
+
+
+
             }
             else
             {
@@ -138,23 +145,49 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 viewList = true
             }
         }
+
+
    
 
         }
 
+    private fun updateMapMarkers()
+    {
+        //clear map first
+        for (marker in this.markers){
+            marker.remove()
+        }
+        this.markers.clear()
+
+
+        for (property in propertyArrayList)
+        {
+            var icon = R.drawable.house
+
+            if (property.type != "House")
+            {
+            icon = R.drawable.apartment
+            }
+            val marker = mMap.addMarker(MarkerOptions().position(LatLng(property.lat,property.lng)).title(property.address).icon(
+                BitmapDescriptorFactory.fromResource(icon)
+            ))
+            if (marker!= null)
+            {
+                this.markers.add(marker)
+            }
+        }
+    }
 
     override fun onMapReady(p0: GoogleMap) {
         mMap = p0
 
         // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
+        val toronto = LatLng(43.6532, -79.3832)
 //        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(this.currentLocation, 20.0f))
-        mMap.addMarker(MarkerOptions().position(this.currentLocation).title("You're Here"))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(toronto, 10.0f))
 
-        mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
         mMap.isTrafficEnabled = true
 
         val uiSettings = p0.uiSettings
@@ -175,6 +208,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 propertyArrayList.clear()
                 propertyArrayList.addAll(propertyList)
                 propertyAdapter.notifyDataSetChanged()
+                updateMapMarkers()
             }
         } )
 
@@ -255,6 +289,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 propertyArrayList.clear()
                 propertyArrayList.addAll(propertyList)
                 propertyAdapter.notifyDataSetChanged()
+                updateMapMarkers()
             }
         } )
 
