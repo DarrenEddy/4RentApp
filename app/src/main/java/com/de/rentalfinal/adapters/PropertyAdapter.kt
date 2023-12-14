@@ -67,10 +67,7 @@ class PropertyAdapter(var items:ArrayList<Property>,private val rowClickHandler:
             val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
             imageFile.setImageResource(res)
         }
-        else
-        {
-            tvAvailable.setText("Available")
-        }
+
 
 
     }
