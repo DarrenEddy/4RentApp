@@ -1,10 +1,11 @@
 package com.de.rentalfinal
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.de.rentalfinal.models.Property
 
@@ -33,13 +34,38 @@ class PropertyAdapter(var items:ArrayList<Property>,private val rowClickHandler:
         val property = items.get(position)
 
         val tvAddress = holder.itemView.findViewById<TextView>(R.id.tvAddress)
+        val imageFile = holder.itemView.findViewById<ImageView>(R.id.propertyImage)
         val tvType = holder.itemView.findViewById<TextView>(R.id.tvType)
         val tvAvailable = holder.itemView.findViewById<TextView>(R.id.tvAvailability)
         tvAddress.setText(property.address)
         tvType.setText(property.type)
-        if (!property.available)
-        {
-            tvAvailable.setText("Unavailable")
+        if (property.available) {
+            tvAvailable.text = "Available"
+            tvAvailable.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.availableColor))
+        } else {
+            tvAvailable.text = "Unavailable"
+            tvAvailable.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.unavailableColor))
+        }
+
+        val context = holder.itemView.context
+        if (property.type == "House") {
+            val imagename = "house"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+        } else if (property.type == "Condo") {
+            val imagename = "condo"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+
+        } else if (property.type == "Apartment") {
+            val imagename = "apartment"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+
+        } else if (property.type == "Basement") {
+            val imagename = "basement"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
         }
 
 

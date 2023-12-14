@@ -14,6 +14,7 @@
         android:gravity="center"
         android:layout_marginBottom="20dp"
         android:text="Update Property"
+        android:textStyle="bold"
         android:textSize="20sp"/>
 
 
@@ -21,6 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Address"
+        android:textStyle="bold"
         android:textSize="20sp"/>
     <EditText
         android:id="@+id/edit_address"
@@ -58,6 +60,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="Longitude"/>
 
             <EditText
@@ -73,6 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Property Type"
+        android:textStyle="bold"
         android:textSize="20sp"/>
     <Spinner
         android:id="@+id/spinner_type"
@@ -86,6 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Description"
+        android:textStyle="bold"
         android:textSize="20sp"/>
     <EditText
         android:id="@+id/edit_description"
@@ -105,6 +110,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Unavailable"
+            android:textStyle="bold"
             android:textSize="20sp"/>
 
         <Switch
@@ -120,6 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Available"
+            android:textStyle="bold"
             android:textSize="20sp"/>
 
     </LinearLayout>

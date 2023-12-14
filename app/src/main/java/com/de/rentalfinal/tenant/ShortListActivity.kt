@@ -41,12 +41,6 @@ class ShortListActivity : AppCompatActivity() {
                 LinearLayoutManager.VERTICAL
             )
         )
-
-        binding.goBack.setOnClickListener{
-            finish()
-        }
-
-
     }
 
     override fun onResume() {
