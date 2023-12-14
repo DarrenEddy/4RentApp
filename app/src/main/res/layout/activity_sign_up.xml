@@ -110,6 +110,7 @@
         android:id="@+id/btn_create_account"
         android:layout_width="match_parent"
         android:layout_marginTop="20dp"
+        android:backgroundTint="#4c59af"
         android:layout_height="wrap_content"
         android:text="CreateAccount" />
 </LinearLayout>
