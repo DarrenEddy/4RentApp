@@ -43,4 +43,28 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="login">Login</string>
+    <string name="enter_email">Enter Email</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="log_in">Log In</string>
+    <string name="create_an_account">Create An Account</string>
+    <string name="list">List</string>
+    <string name="map">Map</string>
+    <string name="remove">Remove</string>
+    <string name="update">Update</string>
+    <string name="available">Available</string>
+    <string name="unavailable">Unavailable</string>
+    <string name="description">Description</string>
+    <string name="property_type">Property Type</string>
+    <string name="longitude">Longitude</string>
+    <string name="latitude">Lattitude</string>
+    <string name="address">Address</string>
+    <string name="update_property">Update Property</string>
+    <string name="validate">Validate</string>
+    <string name="create_property">Create Property</string>
+    <string name="enter_the_address">Enter The Address</string>
+    <string name="current_location">Current Location</string>
+    <string name="property_description">Property Description</string>
+    <string name="select_the_property_type">Select The Property Type</string>
+    <string name="add_property">Add Property</string>
 </resources>

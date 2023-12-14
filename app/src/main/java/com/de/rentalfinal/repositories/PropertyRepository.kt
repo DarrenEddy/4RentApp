@@ -46,7 +46,7 @@ class PropertyRepository(private val context : Context) {
 
     fun retrieveAllProperties(){
             try{
-                db.collection(COLLECTION_PROPERTY)
+                db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_AVAILABLE, true)
                     .addSnapshotListener(EventListener{ result, error ->
                         if (error != null){
                             Log.e(TAG,
@@ -98,7 +98,7 @@ class PropertyRepository(private val context : Context) {
     {
 
             try{
-                db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_TYPE,type)
+                db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_TYPE,type).whereEqualTo(FIELD_PROPERTY_AVAILABLE,true)
                     .addSnapshotListener(EventListener { result, error ->
                         //check for result or errors and update UI accordingly
                         if (error != null){

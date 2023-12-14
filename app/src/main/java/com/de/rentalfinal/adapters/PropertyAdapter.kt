@@ -41,6 +41,10 @@ class PropertyAdapter(var items:ArrayList<Property>,private val rowClickHandler:
         {
             tvAvailable.setText("Unavailable")
         }
+        else
+        {
+            tvAvailable.setText("Available")
+        }
 
 
     }

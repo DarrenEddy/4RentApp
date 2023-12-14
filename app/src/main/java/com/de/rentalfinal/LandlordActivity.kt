@@ -39,11 +39,10 @@ class LandlordActivity : AppCompatActivity() {
             )
         )
 
-
-
-
-
-
+        this.binding.btnToAddActivity.setOnClickListener {
+            val intent = Intent(this,CreatePropertyActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 

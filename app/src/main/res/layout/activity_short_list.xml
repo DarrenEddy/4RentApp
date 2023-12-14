@@ -2,11 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/rootLayout"
     tools:context=".tenant.ShortListActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,31 +17,33 @@
             android:id="@+id/logoutBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Logout"
-            android:backgroundTint="#ff0000"
-            android:textColor="@android:color/white"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#ff0000"
+            android:text="Logout"
+            android:textColor="@android:color/white" />
     </LinearLayout>
+
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
+        android:layout_marginBottom="20dp"
         android:text="PROPERTIES LIST"
-        android:textSize="20dp"
-        android:layout_marginBottom="20dp"/>
+        android:textAlignment="center"
+        android:textSize="20dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/goBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go Back"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:textColor="@android:color/white"/>
+        android:text="Go Back"
+        android:textColor="@android:color/white" />
 </LinearLayout>

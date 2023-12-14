@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 class SignUpActivity : AppCompatActivity(), OnClickListener {
     private val TAG = this.javaClass.canonicalName
     private lateinit var binding: ActivitySignUpBinding
-    private  lateinit var firebaseAuth : FirebaseAuth
+    private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var userRepository: UserRepository
     private var accountSwitch = false
 
@@ -28,63 +28,70 @@ class SignUpActivity : AppCompatActivity(), OnClickListener {
         this.userRepository = UserRepository(applicationContext)
         this.firebaseAuth = FirebaseAuth.getInstance()
 
-
         setContentView(this.binding.root)
     }
 
     override fun onClick(p0: View?) {
-        when(p0?.id){
-            R.id.switchAccountType->
-                {
-                    accountSwitch = !accountSwitch
-                }
+        when (p0?.id) {
+            R.id.switchAccountType -> {
+                accountSwitch = !accountSwitch
+            }
 
-            R.id.btn_create_account ->{
-                if (this.binding.editEmail.text.isNullOrEmpty() || this.binding.editPassword.text.isNullOrEmpty()||this.binding.editConfirmPassword.text.isNullOrEmpty()){
+            R.id.btn_create_account -> {
+                if (this.binding.editEmail.text.isNullOrEmpty() || this.binding.editPassword.text.isNullOrEmpty() || this.binding.editConfirmPassword.text.isNullOrEmpty()) {
 
-                    if (this.binding.editEmail.text.isNullOrEmpty()){this.binding.editEmail.setError("Cannot Be Empty")}
-                    if (this.binding.editPassword.text.isNullOrEmpty()){this.binding.editPassword.setError("Cannot Be Empty")}
-                    if (this.binding.editConfirmPassword.text.isNullOrEmpty()){this.binding.editConfirmPassword.setError("Cannot Be Empty")}
-                }
-                else
-                {
+                    if (this.binding.editEmail.text.isNullOrEmpty()) {
+                        this.binding.editEmail.setError("Cannot Be Empty")
+                    }
+                    if (this.binding.editPassword.text.isNullOrEmpty()) {
+                        this.binding.editPassword.setError("Cannot Be Empty")
+                    }
+                    if (this.binding.editConfirmPassword.text.isNullOrEmpty()) {
+                        this.binding.editConfirmPassword.setError("Cannot Be Empty")
+                    }
+                } else {
                     val email = this.binding.editEmail.text.toString()
                     val password = this.binding.editPassword.text.toString()
 
-                    if ( password != this.binding.editConfirmPassword.text.toString())
-                    {
+                    if (password != this.binding.editConfirmPassword.text.toString()) {
                         this.binding.editPassword.setError("Passwords don't match")
                         this.binding.editConfirmPassword.setError("Passwords don't match")
-                    }
-                    else
-                    {
+                    } else {
                         //  Create Account
                         this.firebaseAuth
                             .createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener(this){task ->
+                            .addOnCompleteListener(this) { task ->
 
-                                if (task.isSuccessful){
+                                if (task.isSuccessful) {
                                     var type = "Tenant"
-                                    if (accountSwitch) {type = "Landlord"}
+                                    if (accountSwitch) {
+                                        type = "Landlord"
+                                    }
 
                                     var name = "Unknown"
-                                    if (this.binding.editName.text.isNotEmpty()){name = this.binding.editName.text.toString()}
+                                    if (this.binding.editName.text.isNotEmpty()) {
+                                        name = this.binding.editName.text.toString()
+                                    }
 
                                     val user = User(
-
                                         email = email,
                                         password = password,
                                         name = name,
                                         type = type
-
-
                                     )
                                     userRepository.addUserToDB(user)
                                     saveToPrefs(email)
                                     goToMain()
-                                }else{
-                                    Log.d(TAG, "createAccount: Unable to create user account : ${task.exception}", )
-                                    Toast.makeText(this@SignUpActivity, "Account creation failed", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Log.d(
+                                        TAG,
+                                        "createAccount: Unable to create user account : ${task.exception}",
+                                    )
+                                    Toast.makeText(
+                                        this@SignUpActivity,
+                                        "Account creation failed",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
 

@@ -36,7 +36,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 
-val types : List<String> = listOf("All","Condo","House","Apartment")
+val types: List<String> = listOf("All", "Condo", "House", "Apartment")
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItemSelectedListener {
     private val TAG = this.javaClass.canonicalName
@@ -49,9 +49,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     private lateinit var prefs: SharedPreferences
     private lateinit var userRepository: UserRepository
     private lateinit var firebaseAuth: FirebaseAuth
-    private lateinit var propertyRepository:PropertyRepository
+    private lateinit var propertyRepository: PropertyRepository
     private lateinit var propertyArrayList: ArrayList<Property>
-    private  lateinit var  propertyAdapter:PropertyAdapter
+    private lateinit var propertyAdapter: PropertyAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val markers = mutableListOf<Marker>()
 
@@ -61,7 +61,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     )
 
     private val multiplePermissionsResultLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()) { resultsList ->
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultsList ->
 
         var allPermissionsGrantedTracker = true
 
@@ -75,7 +76,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     }
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //lateinits
@@ -87,9 +87,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
             &&
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             multiplePermissionsResultLauncher.launch(APP_PERMISSIONS_LIST)
         }
@@ -101,14 +107,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         mapFragment.getMapAsync(this)
 
         //spinner Adapter
-        val spinnerAdapter = ArrayAdapter<String>(this,R.layout.spinner_row,types)
+        val spinnerAdapter = ArrayAdapter<String>(this, R.layout.spinner_row, types)
         binding.spinnerFilterProperties.adapter = spinnerAdapter
         binding.spinnerFilterProperties.onItemSelectedListener = this
 
         //rv adapter
         propertyArrayList = ArrayList()
         propertyAdapter = PropertyAdapter(propertyArrayList) { pos -> rowClicked(pos) }
-        this.binding.rvProperties.adapter=propertyAdapter
+        this.binding.rvProperties.adapter = propertyAdapter
         this.binding.rvProperties.layoutManager = LinearLayoutManager(this)
         binding.rvProperties.addItemDecoration(
             DividerItemDecoration(
@@ -125,53 +131,48 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         setContentView(binding.root)
 
         //onclicks
-        binding.switchMapList.setOnClickListener{
-            if (viewList)
-            {
+        binding.switchMapList.setOnClickListener {
+            if (viewList) {
                 // change to map view
                 this.binding.rvProperties.visibility = View.GONE
+                this.binding.scrollview.visibility = View.GONE
                 viewList = false
 
                 //update map with current propertiesList as markers
 
 
-
-            }
-            else
-            {
+            } else {
                 //change to list view
                 this.binding.rvProperties.visibility = View.VISIBLE
+                this.binding.scrollview.visibility = View.VISIBLE
                 viewList = true
             }
         }
 
 
-   
+    }
 
-        }
-
-    private fun updateMapMarkers()
-    {
+    private fun updateMapMarkers() {
         //clear map first
-        for (marker in this.markers){
+        for (marker in this.markers) {
             marker.remove()
         }
         this.markers.clear()
 
 
-        for (property in propertyArrayList)
-        {
+        for (property in propertyArrayList) {
             var icon = R.drawable.house_icon
 
-            if (property.type != "House")
-            {
-            icon = R.drawable.apartment_icon
+            if (property.type != "House") {
+                icon = R.drawable.apartment_icon
             }
-            val marker = mMap.addMarker(MarkerOptions().position(LatLng(property.lat,property.lng)).title(property.address).icon(
-                BitmapDescriptorFactory.fromResource(icon)
-            ))
-            if (marker!= null)
-            {
+            val marker = mMap.addMarker(
+                MarkerOptions().position(LatLng(property.lat, property.lng)).title(property.address)
+                    .icon(
+                        BitmapDescriptorFactory.fromResource(icon)
+                    )
+            )
+            if (marker != null) {
                 this.markers.add(marker)
             }
         }
@@ -197,9 +198,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
 
     override fun onResume() {
         super.onResume()
-        if (prefs.contains("USER_EMAIL"))
-        {
-            userRepository.getTypeByEmail(prefs.getString("USER_EMAIL","").toString(),this.binding.menuToolbar)
+        if (prefs.contains("USER_EMAIL")) {
+            userRepository.getTypeByEmail(
+                prefs.getString("USER_EMAIL", "").toString(),
+                this.binding.menuToolbar
+            )
         }
         propertyRepository.retrieveAllProperties()
         propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
@@ -209,27 +212,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 propertyAdapter.notifyDataSetChanged()
                 updateMapMarkers()
             }
-        } )
+        })
 
 
     }
 
 
-    private fun updateMenu()
-    {
-        val type = prefs.getString("USER_TYPE","").toString()
-        if (type == "Landlord")
-        {
+    private fun updateMenu() {
+        val type = prefs.getString("USER_TYPE", "").toString()
+        if (type == "Landlord") {
             this.binding.menuToolbar.menu.clear()
             this.binding.menuToolbar.inflateMenu(R.menu.menu_options_landlord)
-        }
-        else
-        {
+        } else {
             this.binding.menuToolbar.menu.clear()
             this.binding.menuToolbar.inflateMenu(R.menu.menu_options)
         }
 
     }
+
     private fun rowClicked(pos: Int) {
         val selectedProperty = propertyArrayList[pos]
         val propertyId = selectedProperty.id
@@ -242,41 +242,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
         updateMenu()
         return super.onCreateOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        return when(item.itemId){
+        return when (item.itemId) {
 
-            R.id.menu_item_add_property-> {
-                val intent = Intent(this,CreatePropertyActivity::class.java)
+            R.id.menu_item_add_property -> {
+                val intent = Intent(this, CreatePropertyActivity::class.java)
                 startActivity(intent)
                 return true
             }
-            R.id.menu_item_login ->
-                {
-                    val intent = Intent(this,LoginActivity::class.java)
-                    startActivity(intent)
-                    return true
-                }
-            R.id.menu_item_logout ->
-                {
-                    prefs.edit().remove("USER_EMAIL").commit()
-                    prefs.edit().remove("USER_TYPE").commit()
-                    firebaseAuth.signOut()
-                    updateMenu()
-                    return true
-                }
-            R.id.menu_item_view_properties ->
-                {
-                    val intent = Intent(this,LandlordActivity::class.java)
-                    startActivity(intent)
-                    return true
-                }
-            R.id.menu_item_shortlist ->
-                {
-                    val intent = Intent(this,ShortListActivity::class.java)
-                    startActivity(intent)
-                    return true
-                }
+
+            R.id.menu_item_login -> {
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+
+            R.id.menu_item_logout -> {
+                prefs.edit().remove("USER_EMAIL").commit()
+                prefs.edit().remove("USER_TYPE").commit()
+                firebaseAuth.signOut()
+                updateMenu()
+                return true
+            }
+
+            R.id.menu_item_view_properties -> {
+                val intent = Intent(this, LandlordActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+
+            R.id.menu_item_shortlist -> {
+                val intent = Intent(this, ShortListActivity::class.java)
+                startActivity(intent)
+                return true
+            }
 
 
             else -> super.onOptionsItemSelected(item)
@@ -285,12 +286,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
 //        Toast.makeText(this, "ITEM SELECTED", Toast.LENGTH_SHORT).show()
-        if (p2 == 0)
-        {
+        if (p2 == 0) {
             propertyRepository.retrieveAllProperties()
-        }
-        else
-        {
+        } else {
             propertyRepository.getPropertiesByType(type = types[p2])
         }
         propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
@@ -300,7 +298,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 propertyAdapter.notifyDataSetChanged()
                 updateMapMarkers()
             }
-        } )
+        })
 
 
     }
@@ -308,8 +306,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     override fun onNothingSelected(p0: AdapterView<*>?) {
         Toast.makeText(this, "ERROR NOTHING SELECTED", Toast.LENGTH_SHORT).show()
     }
-
-
 
 
 }

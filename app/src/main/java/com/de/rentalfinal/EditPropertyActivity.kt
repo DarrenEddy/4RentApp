@@ -12,6 +12,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.widget.ArrayAdapter
 import android.widget.TextView
+import android.widget.Button
 import android.widget.TextView.OnEditorActionListener
 import android.widget.Toast
 import com.de.rentalfinal.databinding.ActivityEditPropertyBinding
@@ -19,14 +20,14 @@ import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.repositories.PropertyRepository
 import java.util.Locale
 
-class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorActionListener {
+class EditPropertyActivity : AppCompatActivity(), OnClickListener, OnEditorActionListener {
     private lateinit var binding: ActivityEditPropertyBinding
     private val TAG = this.javaClass.canonicalName
     private lateinit var propertyRepository: PropertyRepository
     private lateinit var propertyArrayList: ArrayList<Property>
     private lateinit var propertyTypes: List<String>
     private lateinit var prefs: SharedPreferences
-    private lateinit var id:String
+    private lateinit var id: String
     private lateinit var property: Property
     private lateinit var email: String
     private var checked = true
@@ -36,42 +37,38 @@ class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorAction
         this.propertyRepository = PropertyRepository(applicationContext)
         this.propertyArrayList = ArrayList()
         this.binding = ActivityEditPropertyBinding.inflate(layoutInflater)
-        this.propertyTypes = types.subList(1,types.size)
+        this.propertyTypes = types.subList(1, types.size)
         this.prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
 
 
-
-        val adapter = ArrayAdapter<String>(this,R.layout.spinner_row,this.propertyTypes)
+        val adapter = ArrayAdapter<String>(this, R.layout.spinner_row, this.propertyTypes)
         this.binding.spinnerType.adapter = adapter
 
-        if(!prefs.contains("USER_EMAIL"))
-        {
+        if (!prefs.contains("USER_EMAIL")) {
             goToMain()
         }
-        this.email = prefs.getString("USER_EMAIL","").toString()
+        this.email = prefs.getString("USER_EMAIL", "").toString()
 
         this.id = intent.getStringExtra("PROPERTY_ID").toString()
 
-        if (id == null)
-        {
+        if (id == null) {
             Toast.makeText(this, "couldnt get id", Toast.LENGTH_SHORT).show()
             goToMain()
             return
         }
 
-        propertyRepository.getPropertyById(id, onSuccess =  { property ->
-            if (property != null){
+        propertyRepository.getPropertyById(id, onSuccess = { property ->
+            if (property != null) {
                 this.property = property
                 this.binding.editAddress.setText(property.address)
                 this.binding.editLat.setText(property.lat.toString())
                 this.binding.editLng.setText(property.lng.toString())
                 this.binding.editDescription.setText(property.description)
-                if(!property.available)
-                {
+                if (!property.available) {
                     this.binding.switchAvailable.isChecked = false
                 }
                 this.binding.spinnerType.setSelection(this.propertyTypes.indexOf(property.type))
-            }else{
+            } else {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
             }
@@ -83,24 +80,22 @@ class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorAction
 
 
         this.binding.editAddress.setOnEditorActionListener(this)
-        this.binding.editLat.setOnEditorActionListener(this)
-        this.binding.editLng.setOnEditorActionListener(this)
+        this.binding.btnLatLngValidate.setOnClickListener(this)
         this.binding.switchAvailable.setOnClickListener(this)
         this.binding.btnRemoveProperty.setOnClickListener(this)
         this.binding.btnUpdateProperty.setOnClickListener(this)
         setContentView(this.binding.root)
     }
+
     private fun goToMain() {
         val mainIntent = Intent(this, MainActivity::class.java)
         startActivity(mainIntent)
     }
 
     override fun onClick(p0: View?) {
-        when(p0?.id){
-            R.id.btn_update_property ->
-                {
-                if(validateData())
-                {
+        when (p0?.id) {
+            R.id.btn_update_property -> {
+                if (validateData()) {
                     val address = this.binding.editAddress.text.toString()
                     val lat = this.binding.editLat.text.toString().toDouble()
                     val lng = this.binding.editLng.text.toString().toDouble()
@@ -109,29 +104,72 @@ class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorAction
                     //this.checked
                     //this.id
                     // this.email
-                    val updateProperty = Property(id = this.id,address,lat,lng,type,desc,this.email,this.checked)
+                    val updateProperty = Property(
+                        id = this.id,
+                        address,
+                        lat,
+                        lng,
+                        type,
+                        desc,
+                        this.email,
+                        this.checked
+                    )
                     propertyRepository.updateProperty(updateProperty)
 
-                    val intent = Intent(this,LandlordActivity::class.java)
+                    val intent = Intent(this, LandlordActivity::class.java)
                     startActivity(intent)
 
 
                 }
+            }
+
+            R.id.btn_remove_property -> {
+                propertyRepository.removePropertyById(this.property)
+                val intent = Intent(this, LandlordActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.switch_available -> {
+                this.checked = !this.checked
+            }
+
+            R.id.btn_lat_lng_validate -> {
+                if (this.binding.editLng.text.isNullOrEmpty() || this.binding.editLat.text.isNullOrEmpty()) {
+                    if (this.binding.editLat.text.isNullOrEmpty()) this.binding.editLat.error =
+                        "Cannot Be Empty"
+                    if (this.binding.editLng.text.isNullOrEmpty()) this.binding.editLng.error =
+                        "Cannot Be Empty"
+                } else {
+                    val lat = this.binding.editLat.text.toString().toDouble()
+                    val lng = this.binding.editLng.text.toString().toDouble()
+                    val geocoder: Geocoder = Geocoder(applicationContext, Locale.getDefault())
+
+                    try {
+                        val searchResults: MutableList<Address>? =
+                            geocoder.getFromLocation(lat, lng, 1)
+                        if (searchResults == null) {
+                            Toast.makeText(this, "Error Searching", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        if (searchResults.size == 0) {
+                            binding.editLat.error = "Cant Find Address"
+
+                        } else {
+                            val foundLocation: Address = searchResults[0]
+                            this.binding.editAddress.setText(foundLocation.getAddressLine(0))
+
+                        }
+                    } catch (ex: Exception) {
+                        Log.e(TAG, "Getting coordinate location failed: $ex")
+                        Log.e(TAG, ex.toString())
+                    }
                 }
-            R.id.btn_remove_property ->
-                {
-                    propertyRepository.removePropertyById(this.property)
-                    val intent = Intent(this,LandlordActivity::class.java)
-                    startActivity(intent)
-                }
-            R.id.switch_available ->
-                {
-                    this.checked = !this.checked
-                }
+            }
+
         }
     }
 
-    private fun validateData():Boolean{
+    private fun validateData(): Boolean {
         val address = this.binding.editAddress.text
         val lat = this.binding.editLat.text
         val lng = this.binding.editLng.text
@@ -141,12 +179,19 @@ class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorAction
         //this.checked
         //this.id
         // this.email
-        if (address.isNullOrEmpty() || lat.isNullOrEmpty() || lng.isNullOrEmpty() || desc.isNullOrEmpty()|| this.email== "" || this.id == "")
-        {
-            if (address.isNullOrEmpty()){ this.binding.editAddress.setError("Cannot Be Empty")}
-            if (lat.isNullOrEmpty()){this.binding.editLat.setError("Cannot Be Empty")}
-            if (lng.isNullOrEmpty()){this.binding.editLng.setError("Cannot Be Empty")}
-            if (desc.isNullOrEmpty()){this.binding.editDescription.setError("Cannot Be Empty")}
+        if (address.isNullOrEmpty() || lat.isNullOrEmpty() || lng.isNullOrEmpty() || desc.isNullOrEmpty() || this.email == "" || this.id == "") {
+            if (address.isNullOrEmpty()) {
+                this.binding.editAddress.setError("Cannot Be Empty")
+            }
+            if (lat.isNullOrEmpty()) {
+                this.binding.editLat.setError("Cannot Be Empty")
+            }
+            if (lng.isNullOrEmpty()) {
+                this.binding.editLng.setError("Cannot Be Empty")
+            }
+            if (desc.isNullOrEmpty()) {
+                this.binding.editDescription.setError("Cannot Be Empty")
+            }
             return false
         }
 
@@ -177,90 +222,17 @@ class EditPropertyActivity : AppCompatActivity(), OnClickListener,OnEditorAction
                         val foundLocation: Address = searchResults[0]
                         this.binding.editLng.setText(foundLocation.longitude.toString())
                         this.binding.editLat.setText(foundLocation.latitude.toString())
-
-
                     }
                 } catch (ex: Exception) {
                     Log.e(TAG, "Error encountered while getting coordinate location.")
                     Log.e(TAG, ex.toString())
                 }
-
-
                 return true
             }
-            R.id.edit_lat->
-                {
-                    if (this.binding.editLat.text.isNullOrEmpty()){
-                        return true
-                    }
-                    val lat = this.binding.editLat.text.toString().toDouble()
-                    val lng = this.binding.editLng.text.toString().toDouble()
-                    val geocoder: Geocoder = Geocoder(applicationContext, Locale.getDefault())
 
-                    try {
-                        val searchResults: MutableList<Address>? =
-                            geocoder.getFromLocation(lat,lng,1)
-                        if (searchResults == null) {
-                            Toast.makeText(this, "Error Searching", Toast.LENGTH_SHORT).show()
-                            return true
-                        }
-                        if (searchResults.size == 0) {
-                            binding.editLat.setError("Cant Find Address")
-
-                        } else {
-                            val foundLocation: Address = searchResults[0]
-                            this.binding.editAddress.setText(foundLocation.getAddressLine(0))
-
-                        }
-                    } catch (ex: Exception) {
-                        Log.e(TAG, "Error encountered while getting coordinate location.")
-                        Log.e(TAG, ex.toString())
-                    }
-
-
-                    return true
-
-
-                }
-            R.id.edit_lng->
-            {
-                if (this.binding.editLng.text.isNullOrEmpty()){
-                    return true
-                }
-                val lat = this.binding.editLat.text.toString().toDouble()
-                val lng = this.binding.editLng.text.toString().toDouble()
-                val geocoder: Geocoder = Geocoder(applicationContext, Locale.getDefault())
-
-                try {
-                    val searchResults: MutableList<Address>? =
-                        geocoder.getFromLocation(lat,lng,1)
-                    if (searchResults == null) {
-                        Toast.makeText(this, "Error Searching", Toast.LENGTH_SHORT).show()
-                        return true
-                    }
-                    if (searchResults.size == 0) {
-                        binding.editLat.setError("Cant Find Address")
-
-                    } else {
-                        val foundLocation: Address = searchResults[0]
-                        this.binding.editAddress.setText(foundLocation.getAddressLine(0))
-
-                    }
-                } catch (ex: Exception) {
-                    Log.e(TAG, "Error encountered while getting coordinate location.")
-                    Log.e(TAG, ex.toString())
-                }
-
-
+            else -> {
                 return true
-
-
             }
-
-            else ->
-                {
-                    return true
-                }
 
         }
 

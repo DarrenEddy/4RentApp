@@ -36,8 +36,7 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
         this.userRepository = UserRepository(applicationContext)
 
         this.binding.btnAddToShortList.setOnClickListener(this)
-        this.binding.btnGoBack.setOnClickListener(this)
-        prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
+         prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
 
         this.currentUserId = this.prefs.getString("USER_EMAIL", "").toString()
 
@@ -95,10 +94,6 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
                 }
-            }
-            R.id.btnGoBack ->
-            {
-                finish()
             }
         }
     }
