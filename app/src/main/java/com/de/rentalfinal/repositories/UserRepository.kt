@@ -48,18 +48,6 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    fun getTypeByEmail(email: String, menu: androidx.appcompat.widget.Toolbar)
-    {
-        db.collection(COLLECTION_USERS).document(email).get().addOnSuccessListener {
-            val type = it.get(FIELD_TYPE).toString()
-            prefs.edit().putString("USER_TYPE", type).apply()
-            adjustMenu(type,menu)
-            Log.d(TAG,"UserRepository: got $email type of $type")
-
-        }.addOnFailureListener{
-            Log.e(TAG,"UserRepository: Error getting Type By email $it")
-        }
-    }
     fun getTypeById(userId: String, onSuccess: (String) -> Unit) {
         try {
             db.collection(COLLECTION_USERS)
@@ -78,40 +66,4 @@ class UserRepository(private val context: Context) {
         }
     }
 
-    private fun adjustMenu(type:String, menu: androidx.appcompat.widget.Toolbar)
-    {
-        if (type == "Landlord")
-        {
-            menu.menu.clear()
-            menu.inflateMenu(R.menu.menu_options_landlord)
-        }
-        else if (type == "Tenant")
-        {
-            menu.menu.clear()
-            menu.inflateMenu(R.menu.menu_options_tenant)
-        }
-    }
-
-//    fun updateUserProfile(userToUpdate : User){
-//        try{
-//            val data : MutableMap<String, Any> = HashMap()
-//
-//            data[FIELD_PASSWORD] = userToUpdate.password
-//            data[FIELD_PHONE] = userToUpdate.phoneNumber
-//            data[FIELD_NAME] = userToUpdate.name
-//
-//            db.collection(COLLECTION_USERS)
-//                .document(userToUpdate.email)
-//                .update(data)
-//                .addOnSuccessListener { docRef ->
-//                    Log.d(TAG, "updateUserProfile: User document successfully updated $docRef")
-//                }
-//                .addOnFailureListener { ex ->
-//                    Log.e(TAG, "updateUserProfile: Unable to update user document due to exception : $ex", )
-//                }
-//
-//        }catch (ex : Exception){
-//            Log.e(TAG, "updateUserProfile: Couldn't update user document $ex", )
-//        }
-//    }
 }

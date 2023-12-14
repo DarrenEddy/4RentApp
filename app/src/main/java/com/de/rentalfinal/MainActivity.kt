@@ -199,10 +199,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     override fun onResume() {
         super.onResume()
         if (prefs.contains("USER_EMAIL")) {
-            userRepository.getTypeByEmail(
-                prefs.getString("USER_EMAIL", "").toString(),
-                this.binding.menuToolbar
-            )
+            val userEmail = prefs.getString("USER_EMAIL", "").toString()
+            userRepository.getTypeById(userEmail, onSuccess = {type ->
+                updateMenu(type)
+            })
+
         }
         propertyRepository.retrieveAllProperties()
         propertyRepository.allProperties.observe(this, androidx.lifecycle.Observer { propertyList ->
@@ -218,12 +219,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     }
 
 
-    private fun updateMenu() {
-        val type = prefs.getString("USER_TYPE", "").toString()
+    private fun updateMenu(type:String) {
         if (type == "Landlord") {
             this.binding.menuToolbar.menu.clear()
             this.binding.menuToolbar.inflateMenu(R.menu.menu_options_landlord)
-        } else {
+        }
+        else if (type == "Tenant")
+        {
+            this.binding.menuToolbar.menu.clear()
+            this.binding.menuToolbar.inflateMenu(R.menu.menu_options_tenant)
+        }
+        else {
             this.binding.menuToolbar.menu.clear()
             this.binding.menuToolbar.inflateMenu(R.menu.menu_options)
         }
@@ -239,7 +245,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        updateMenu()
+        if (prefs.contains("USER_EMAIL")) {
+            val userEmail = prefs.getString("USER_EMAIL", "").toString()
+            userRepository.getTypeById(userEmail, onSuccess = {type ->
+                updateMenu(type)
+            })
+
+        }else
+        {
+            updateMenu("")
+        }
+
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -263,7 +279,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
                 prefs.edit().remove("USER_EMAIL").commit()
                 prefs.edit().remove("USER_TYPE").commit()
                 firebaseAuth.signOut()
-                updateMenu()
+                updateMenu("")
                 return true
             }
 
@@ -285,7 +301,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
     }
 
     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-//        Toast.makeText(this, "ITEM SELECTED", Toast.LENGTH_SHORT).show()
         if (p2 == 0) {
             propertyRepository.retrieveAllProperties()
         } else {
