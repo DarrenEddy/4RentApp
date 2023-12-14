@@ -16,6 +16,12 @@
         android:theme="@style/Theme.RentalFinal"
         tools:targetApi="31">
         <activity
+            android:name=".tenant.ShortListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".tenant.ActivityViewProperty"
+            android:exported="false" />
+        <activity
             android:name=".LandlordActivity"
             android:exported="false" />
         <activity

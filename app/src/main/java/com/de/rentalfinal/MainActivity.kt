@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -22,6 +21,8 @@ import com.de.rentalfinal.databinding.ActivityMainBinding
 import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.repositories.PropertyRepository
 import com.de.rentalfinal.repositories.UserRepository
+import com.de.rentalfinal.tenant.ActivityViewProperty
+import com.de.rentalfinal.tenant.ShortListActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationServices
@@ -29,12 +30,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
 val types : List<String> = listOf("All","Condo","House","Apartment")
@@ -162,11 +161,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
 
         for (property in propertyArrayList)
         {
-            var icon = R.drawable.house
+            var icon = R.drawable.house_icon
 
             if (property.type != "House")
             {
-            icon = R.drawable.apartment
+            icon = R.drawable.apartment_icon
             }
             val marker = mMap.addMarker(MarkerOptions().position(LatLng(property.lat,property.lng)).title(property.address).icon(
                 BitmapDescriptorFactory.fromResource(icon)
@@ -232,7 +231,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
 
     }
     private fun rowClicked(pos: Int) {
-
+        val selectedProperty = propertyArrayList[pos]
+        val propertyId = selectedProperty.id
+        val intent = Intent(this, ActivityViewProperty::class.java)
+        intent.putExtra("PROPERTY_ID", propertyId)
+        startActivity(intent)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -265,6 +268,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, AdapterView.OnItem
             R.id.menu_item_view_properties ->
                 {
                     val intent = Intent(this,LandlordActivity::class.java)
+                    startActivity(intent)
+                    return true
+                }
+            R.id.menu_item_shortlist ->
+                {
+                    val intent = Intent(this,ShortListActivity::class.java)
                     startActivity(intent)
                     return true
                 }

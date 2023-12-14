@@ -176,44 +176,23 @@ class PropertyRepository(private val context : Context) {
 
     }
 
-    fun getPropertyById(id:String)
-    {
-        try{
-            db.collection(COLLECTION_PROPERTY).whereEqualTo(FIELD_PROPERTY_ID,id)
-                .addSnapshotListener(EventListener { result, error ->
-                    //check for result or errors and update UI accordingly
-                    if (error != null){
-                        Log.e(TAG,
-                            "filterProperties: Listening to Properties collection failed due to error : $error", )
-                        return@EventListener
+    fun getPropertyById(propertyId: String, onSuccess: (Property) -> Unit) {
+        try {
+            db.collection(COLLECTION_PROPERTY)
+                .document(propertyId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val property = document.toObject(Property::class.java)
+                        property?.id = document.id
+                        if (property != null) {
+                            onSuccess(property)
+                        }
                     }
-
-                    if (result != null){
-                        Log.d(TAG, "filterProperties: Number of documents retrieved : ${result.size()}")
-
-                        val tempList : MutableList<Property> = ArrayList<Property>()
-
-                        for (docChanges in result.documentChanges){
-
-                            val currentDocument : Property = docChanges.document.toObject(Property::class.java)
-                            Log.d(TAG, "filterProperties: currentDocument : $currentDocument")
-
-                            //do necessary changes to your local list of objects
-                            tempList.add(currentDocument)
-                        }//for
-                        Log.d(TAG, "filterProperties: tempList : $tempList")
-                        //replace the value in allProperties
-                        allProperties.postValue(tempList)
-
-                    }else{
-                        Log.d(TAG, "filterProperties: No data in the result after retrieving")
-                    }
-                })
+                }
+        } catch (ex:java.lang.Exception) {
+            Log.d(TAG, "getPropertyById: Could not get property by id due to excepcion: $ex")
         }
-        catch (ex : java.lang.Exception){
-            Log.e(TAG, "filterProperties: Unable to filter Properties : $ex", )
-        }
-
     }
 
     fun removePropertyById(rmbProperty:Property){

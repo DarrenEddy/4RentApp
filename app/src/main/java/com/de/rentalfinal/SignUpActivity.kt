@@ -64,7 +64,7 @@ class SignUpActivity : AppCompatActivity(), OnClickListener {
                             .addOnCompleteListener(this){task ->
 
                                 if (task.isSuccessful){
-                                    var type = "Tennent"
+                                    var type = "Tenant"
                                     if (accountSwitch) {type = "Landlord"}
 
                                     var name = "Unknown"

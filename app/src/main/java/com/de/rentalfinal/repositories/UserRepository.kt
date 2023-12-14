@@ -5,6 +5,7 @@ import android.content.Context.MODE_PRIVATE
 import android.util.Log
 import android.widget.Toolbar
 import com.de.rentalfinal.R
+import com.de.rentalfinal.models.Property
 import com.de.rentalfinal.models.User
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -59,6 +60,23 @@ class UserRepository(private val context: Context) {
             Log.e(TAG,"UserRepository: Error getting Type By email $it")
         }
     }
+    fun getTypeById(userId: String, onSuccess: (String) -> Unit) {
+        try {
+            db.collection(COLLECTION_USERS)
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val user = document.toObject(User::class.java)
+                        if (user != null) {
+                            onSuccess(user.type)
+                        }
+                    }
+                }
+        } catch (ex:java.lang.Exception) {
+            Log.d(TAG, "getPropertyById: Could not get property by id due to excepcion: $ex")
+        }
+    }
 
     private fun adjustMenu(type:String, menu: androidx.appcompat.widget.Toolbar)
     {
@@ -66,6 +84,11 @@ class UserRepository(private val context: Context) {
         {
             menu.menu.clear()
             menu.inflateMenu(R.menu.menu_options_landlord)
+        }
+        else if (type == "Tenant")
+        {
+            menu.menu.clear()
+            menu.inflateMenu(R.menu.menu_options_tenant)
         }
     }
 
