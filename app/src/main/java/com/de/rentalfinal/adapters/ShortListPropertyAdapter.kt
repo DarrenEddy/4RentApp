@@ -3,11 +3,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.de.rentalfinal.R
 import com.de.rentalfinal.models.Property
-import com.de.rentalfinal.models.Shortlist
 
 
 class ShortListPropertyAdapter(var items:List<Property>,
@@ -45,6 +46,7 @@ class ShortListPropertyAdapter(var items:List<Property>,
         val tvType = holder.itemView.findViewById<TextView>(R.id.tvType)
         val tvDesc = holder.itemView.findViewById<TextView>(R.id.tvDesc)
         val tvOwner = holder.itemView.findViewById<TextView>(R.id.tvOwner)
+        val imageFile = holder.itemView.findViewById<ImageView>(R.id.propertyImageView)
 
         val tvAvailable = holder.itemView.findViewById<TextView>(R.id.tvAvailable)
 
@@ -52,13 +54,32 @@ class ShortListPropertyAdapter(var items:List<Property>,
         tvType.setText(property.type)
         tvDesc.setText(property.description)
         tvOwner.setText(property.owner)
-        if (property.available)
-        {
-            tvAvailable.setText("Available")
+        if (property.available) {
+            tvAvailable.text = "Available"
+            tvAvailable.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.availableColor))
+        } else {
+            tvAvailable.text = "Unavailable"
+            tvAvailable.setTextColor(ContextCompat.getColor(holder.itemView.context, R.color.unavailableColor))
         }
-        else
-        {
-            tvAvailable.setText("Unavailable")
+        val context = holder.itemView.context
+        if (property.type == "House") {
+            val imagename = "house"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+        } else if (property.type == "Condo") {
+            val imagename = "condo"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+
+        } else if (property.type == "Apartment") {
+            val imagename = "apartment"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
+
+        } else if (property.type == "Basement") {
+            val imagename = "basement"
+            val res = context.resources.getIdentifier(imagename, "drawable", context.packageName)
+            imageFile.setImageResource(res)
         }
 
 

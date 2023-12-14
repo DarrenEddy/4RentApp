@@ -36,7 +36,7 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
         this.userRepository = UserRepository(applicationContext)
 
         this.binding.btnAddToShortList.setOnClickListener(this)
-         prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
+        prefs = applicationContext.getSharedPreferences(packageName, MODE_PRIVATE)
 
         this.currentUserId = this.prefs.getString("USER_EMAIL", "").toString()
 
@@ -87,6 +87,8 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
                             } else {
                                 addToShortList(propertyId)
                                 Snackbar.make(binding.root, "Property added to shortlist", Snackbar.LENGTH_LONG).show()
+                                this.binding.btnAddToShortList.text = "Already added to ShortList"
+                                this.binding.btnAddToShortList.isEnabled = false
                             }
                         }
                     }
@@ -131,6 +133,16 @@ class ActivityViewProperty : AppCompatActivity(), View.OnClickListener {
             val imagename = "basement"
             val res = resources.getIdentifier(imagename, "drawable", this.packageName)
             this.binding.typeImage.setImageResource(res)
+        }
+        val propertyId = intent.getStringExtra("PROPERTY_ID")
+
+        if (propertyId != null) {
+            shortListRepository.getListOfProperties(currentUserId) { properties ->
+                if (properties?.contains(propertyId) == true) {
+                    this.binding.btnAddToShortList.text = "Already added to ShortList"
+                    this.binding.btnAddToShortList.isEnabled = false
+                }
+            }
         }
     }
     private fun addToShortList(propertyId:String) {
